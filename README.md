@@ -80,37 +80,49 @@ _REST:_
 *RE*presentational *S*tate *T*ransfer
 
 
+### REST in Rails
+
+Ruby on Rails encourages RESTful URLs as a best practice and should already feel familiar
+
+
 ### Key components of REST
 
 - Stateless
 - Cacheable
 - Uniform interface
 - Designed for use over HTTP
+- Choice of data format
 
 
-#### Stateless
+### Stateless
 
 All of the information needed is part of the request. There's no need to store the state of anything between requests.
 
 
-#### Cacheable
+### Cacheable
 
 Just like websites over HTTP, responses can generally be cached by the client to improve performance.
 
 
-#### Uniform interface
+### Uniform interface
 
 Clients and Servers have a uniform interface that simplifies architecture and design. Additionally, well-design RESTful APIs look familiar and similar to one another.
 
 
-#### Designed for HTTP
+### Designed for HTTP
 
 Uses familar HTTP verbs __GET__, __POST__, __PUT__, and __DELETE__
 
 _The Word Wide Web itself is RESTful_
 
 
-### Examples of public RESTful APIs
+### Choice of data format
+
+Most RESTful APIs use _JSON_ or _XML_ for formatting the data, but you can use whatever you want. (The Web uses HTML)
+
+
+
+## Examples of public RESTful APIs
 
 [Twitter REST API](https://dev.twitter.com/docs/api)
 
@@ -161,11 +173,13 @@ Two Rails applications that need to share functionality:
 - Abstract the work via code-level APIs
 - Can cost less money (no additional servers)
 - No network latency
+- No need to implement authentication
 
 
 ### Cons of sharing code via a gem
 
 - Need to update and deploy all applications when the gem changes
+- Internal improvements require a change in all applications using it
 - Cannot easily add other languages to your systems. _(Our legacy app can't take advantage of new code!)_
 
 
@@ -183,3 +197,27 @@ Two Rails applications that need to share functionality:
 - Costs money to run an additional application
 - Network latency
 - Handling timeouts and other service unavailability issues
+- Also need to implement an authentication layer
+
+
+
+## Concerns of an API Service
+
+- Authentication
+- Versioning
+- Security
+
+
+### Authentication
+
+Ensure that only the allowed clients are able to connect to the service. For our private API the only allowed clients are our own apps.
+
+
+### Versioning
+
+Changes to the public API should be versioned. Older versions can be _depcrecated_ or disabled, depending on the change.
+
+
+### Security
+
+Ensure that all data sent between clients and servers are encrypted to prevent eavesdropping.
