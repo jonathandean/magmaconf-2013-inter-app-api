@@ -155,7 +155,9 @@ Two Rails applications that need to share functionality:
 
 ### Shared functionality
 
+- Create a Customer in the Payment Gateway (Braintree)
 - Charge the customer's credit card
+- List previous transactions for a customer
 - Log the response from the Payment Gateway
 - Handle cases of payment failure
 
