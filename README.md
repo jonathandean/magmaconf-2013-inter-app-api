@@ -160,6 +160,7 @@ Two Rails applications that need to share functionality:
 - List previous transactions for a customer
 - Log the response from the Payment Gateway
 - Handle cases of payment failure
+- etc.
 
 
 
@@ -200,6 +201,132 @@ Two Rails applications that need to share functionality:
 - Network latency
 - Handling timeouts and other service unavailability issues
 - Also need to implement an authentication layer
+
+
+
+## Payments Service Models
+
+- Customer
+- Transaction
+
+
+## Payments Service Actions/Routes
+
+- Create a Customer
+- Update Customer information
+- Create a Transaction
+- Show all Transactions for a Customer
+- Show details of a Specific Transaction
+
+
+## RESTful Routes in Payments Service
+
+_config/routes.rb_
+
+```ruby
+MagmaPaymentsService::Application.routes.draw do
+  resources :customers, only: [:create, :update] do
+    resources :transactions, only: [:create, :index, :show]
+  end
+end
+```
+
+
+## RESTful Routes in Payments Service
+
+_rake routes_
+
+```
+GET  /customers/:customer_id/transactions     transactions#index
+POST /customers/:customer_id/transactions     transactions#create
+GET  /customers/:customer_id/transactions/:id transactions#show
+POST /customers                               customers#create
+PUT  /customers/:id                           customers#update
+```
+
+
+## Start with creating a customer
+
+_app/controllers/customers_controller.rb_
+
+```ruby
+class CustomersController < ApplicationController
+  def create
+    # Need to send a hash of :id, :first_name, :last_name, :email
+    result = Braintree::Customer.create({
+      :id => params[:id],
+      :first_name => params[:last_name],
+      :last_name => params[:last_name],
+      :email => params[:email]
+    })
+    # Build a hash we can send as JSON in the response
+    resp = { success: result.success?, message: (result.message rescue '') }
+    # Render JSON as the response
+    respond_to do |format|
+      format.json { render json: resp }
+    end
+  end
+end
+```
+
+
+## Quick setup for Braintree
+
+_config/initializers/braintree.rb_
+
+```
+Braintree::Configuration.environment = ENV['BRAINTREE_ENV'].to_sym
+Braintree::Configuration.merchant_id = ENV['BRAINTREE_MERCHANT_ID']
+Braintree::Configuration.public_key = ENV['BRAINTREE_PUBLIC_KEY']
+Braintree::Configuration.private_key = ENV['BRAINTREE_PRIVATE_KEY']
+```
+
+Then go to https://www.braintreepayments.com/get-started to sign up and set some environment variables like
+
+```
+export BRAINTREE_ENV=sandbox
+export BRAINTREE_MERCHANT_ID=[get your own!]
+export BRAINTREE_PUBLIC_KEY=[get your own!]
+export BRAINTREE_PRIVATE_KEY=[get your own!]
+```
+
+
+## Let's try
+
+```
+rails server
+```
+
+```
+curl --data "id=1&first_name=Jon&last_name=Dean&email=jon@example.com" \
+       http://localhost:3000/customers
+```
+
+_outputs_
+
+```
+{"success":true,"message":""}
+```
+
+
+## Let's try again
+
+```
+curl --data "id=1&first_name=Jon&last_name=Dean&email=jon@example.com" \
+       http://localhost:3000/customers
+```
+
+_outputs_
+
+```
+{"success":false,"message":"Customer ID has already been taken."}
+```
+
+
+### Tip 
+
+If you ever get something like _WARNING: Can't verify CSRF token authenticity_ then remove ```protect_from_forgery``` from ```ApplicationController```. We aren't submitting forms from our application to itself and so it will complain.
+
 
 
 
