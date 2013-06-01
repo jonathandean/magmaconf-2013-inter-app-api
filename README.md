@@ -329,6 +329,70 @@ If you ever get something like _WARNING: Can't verify CSRF token authenticity_ t
 
 
 
+## Models in our Client App
+
+- User
+- Address
+- (more we don't care about)
+
+
+## Actions/Routes in our Client App
+
+- Create a User
+- Update a User
+- Charge the User some money
+- Show the times we charged a User
+- Show details about a time we charged a User
+- (more we don't care about)
+
+
+## How can our Client App call the API?
+
+__[httparty](https://github.com/jnunemaker/httparty)__ is the __curl__ of Ruby
+
+
+## Create the customer from Client App
+
+We want to create a customer in Braintree as soon as the User is created
+
+_app/models/user.rb_
+
+```ruby
+class User < ActiveRecord::Base
+
+  attr_accessible :name, :email
+  after_create :create_payments_customer
+
+  def create_payments_customer
+    params = {
+      id:         self.id,
+      first_name: self.name.split(' ').first,
+      last_name:  self.name.split(' ').last,
+      email:      self.email
+    }
+    response = HTTParty.post('http://localhost:3000/customers.json', { body: params })
+    answer = response.parsed_response
+    puts "response success: #{answer['success']}"
+    puts "response message: #{answer['message']}"
+  end
+
+end
+```
+
+
+## Let's try it!
+
+```
+rails console
+```
+
+```
+1.9.3p194 :004 > user = User.create(name: "Jon Dean", email: "jon@example.com")
+response success: true
+response message: 
+```
+
+
 
 ## Concerns of an API Service
 
