@@ -406,7 +406,7 @@ MagmaClientApp::Application.configure do
 end
 ```
 
-_apps/services/payments_service.rb_
+_app/services/payments_service.rb_
 
 ```ruby
 class PaymentsService
