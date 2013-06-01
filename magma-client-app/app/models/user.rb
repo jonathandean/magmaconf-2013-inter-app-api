@@ -4,14 +4,7 @@ class User < ActiveRecord::Base
   after_create :create_payments_customer
 
   def create_payments_customer
-    params = {
-        id:         self.id,
-        first_name: self.name.split(' ').first,
-        last_name:  self.name.split(' ').last,
-        email:      self.email
-    }
-    response = PaymentsService.post('/customers.json', { body: params })
-    answer = response.parsed_response
+    answer = PaymentsService.create_customer(self)
     puts "response success: #{answer['success']}"
     puts "response message: #{answer['message']}"
   end

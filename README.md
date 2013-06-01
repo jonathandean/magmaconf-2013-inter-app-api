@@ -422,6 +422,39 @@ response = PaymentsService.post('/customers.json', { body: params })
 ```
 
 
+## We can do better still
+
+_app/services/payments_service.rb_
+
+```ruby
+class PaymentsService
+  include HTTParty
+  base_uri MagmaClientApp::Application.config.payments_base_uri
+
+  def self.create_customer(user)
+    params = {
+      id:         user.id,
+      first_name: user.name.split(' ').first,
+      last_name:  user.name.split(' ').last,
+      email:      user.email
+    }
+    response = self.post('/customers.json', { body: params })
+    response.parsed_response
+  end
+end
+```
+
+_app/models/user.rb_
+
+```ruby
+def create_payments_customer
+  answer = PaymentsService.create_customer(self)
+  puts "response success: #{answer['success']}"
+  puts "response message: #{answer['message']}"
+end
+```
+
+
 ## Concerns of an API Service
 
 - Authentication
