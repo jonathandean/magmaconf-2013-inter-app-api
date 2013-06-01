@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
         last_name:  self.name.split(' ').last,
         email:      self.email
     }
-    response = HTTParty.post('http://localhost:3000/customers.json', { body: params })
+    response = PaymentsService.post('/customers.json', { body: params })
     answer = response.parsed_response
     puts "response success: #{answer['success']}"
     puts "response message: #{answer['message']}"

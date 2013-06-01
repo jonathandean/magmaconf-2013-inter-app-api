@@ -393,6 +393,34 @@ response message:
 ```
 
 
+## Clean it up
+
+Each environment will have a different URL
+
+_config/environments/development.rb_
+
+```ruby
+MagmaClientApp::Application.configure do
+  ...
+  config.payments_base_uri = 'http://localhost:3000'
+end
+```
+
+_apps/services/payments_service.rb_
+
+```ruby
+class PaymentsService
+  include HTTParty
+  base_uri MagmaClientApp::Application.config.payments_base_uri
+end
+```
+
+_app/models/user.rb_
+
+```ruby
+response = PaymentsService.post('/customers.json', { body: params })
+```
+
 
 ## Concerns of an API Service
 
