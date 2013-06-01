@@ -9,8 +9,16 @@ class PaymentsService
         last_name:  user.name.split(' ').last,
         email:      user.email
     }
-    response = self.post('/customers.json', { body: params })
+    options = { body: params, headers: { "Authorization" => authorization_credentials }}
+    response = self.post('/customers.json', options)
     response.parsed_response
+  end
+
+  private
+
+  def self.authorization_credentials
+    token = MagmaClientApp::Application.config.payments_api_secret
+    ActionController::HttpAuthentication::Token.encode_credentials(token)
   end
 
 end

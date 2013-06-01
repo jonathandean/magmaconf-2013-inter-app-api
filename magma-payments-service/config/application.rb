@@ -58,5 +58,7 @@ module MagmaPaymentsService
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+
+    config.api_secret = '0224651fc98de3a615243ebf75188ff430bdb2c1c983ab87614b3db2f4c7a167455354d6c0d2e7e788651bbead373bf0a9a166b12c63d47b48f060cdf759e16e'
   end
 end

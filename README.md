@@ -456,6 +456,109 @@ end
 
 
 ## Concerns of an API Service
+## Securing the Service
+
+We can't have just anyone creating customers!
+
+The Payments Service App needs a way to know that the client is accepted.
+
+
+## Simple solution
+
+A shared secret token!
+
+```
+> rake secret
+0224651fc98de3a615243ebf75188ff430bdb2c1c983ab87614b3db2f4c7a167455354d6c0d2e7e788651bbead373bf0a9a166b12c63d47b48f060cdf759e16e
+```
+
+
+## Setting the token requirement in Payments Service App
+
+_config/application.rb_
+
+```ruby
+module MagmaPaymentsService
+  class Application < Rails::Application
+    # NOTE: config.secret_token is used for cookie session data
+    config.api_secret = '0224651fc98de3a615243ebf75188ff430bdb2c1c983ab87614b3db2f4c7a167455354d6c0d2e7e788651bbead373bf0a9a166b12c63d47b48f060cdf759e16e'
+  end
+end
+```
+
+_app/controllers/application_controller.rb_
+
+```ruby
+class ApplicationController < ActionController::Base
+
+  before_filter :authenticate
+
+  private
+
+  def authenticate
+    authenticate_or_request_with_http_token do |token, options|
+      token == MagmaPaymentsService::Application.config.api_secret
+    end
+  end
+end
+```
+
+
+## Verify we secured the Service
+
+Restart the Payments Service app and now you should get this if you try the API call again:
+
+```
+Started POST "/customers.json" for 127.0.0.1 at 2013-06-01 15:48:19 -0400
+Processing by CustomersController#create as JSON
+  Parameters: {"id"=>"38", "first_name"=>"Jon", "last_name"=>"Dean", "email"=>"jon@example.com"}
+  Rendered text template (0.0ms)
+Filter chain halted as :authenticate rendered or redirected
+Completed 401 Unauthorized in 8ms (Views: 7.3ms | ActiveRecord: 0.0ms)
+```
+
+
+## Sending the token with the client request
+
+_config/application.rb_
+
+```ruby
+module MagmaClientApp
+  class Application < Rails::Application
+    # NOTE: for both apps you are better off settings these as ENV vars
+    config.payments_api_secret = '0224651fc98de3a615243ebf75188ff430bdb2c1c983ab87614b3db2f4c7a167455354d6c0d2e7e788651bbead373bf0a9a166b12c63d47b48f060cdf759e16e'
+  end
+end
+```
+
+
+## Sending the token (cont.)
+
+_app/services/payments_service.rb_
+
+```ruby
+class PaymentsService
+  include HTTParty
+  base_uri MagmaClientApp::Application.config.payments_base_uri
+
+  def self.create_customer(user)
+    params = { ... }
+    options = { body: params, headers: { "Authorization" => authorization_credentials }}
+    response = self.post('/customers.json', options)
+    response.parsed_response
+  end
+
+  private
+
+  def self.authorization_credentials
+    token = MagmaClientApp::Application.config.payments_api_secret
+    ActionController::HttpAuthentication::Token.encode_credentials(token)
+  end
+end
+```
+
+
+
 
 - Authentication
 - Versioning
