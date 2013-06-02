@@ -796,16 +796,20 @@ end
 
 ## Why I'm not crazy about it
 
-- You make a change in V5
-- Now you have to do one of the following
-  - Move the code from ```Base``` to each of V1 to V4
-  - Forever override that method from V5 on, but if you forget you'll get old functionality
+You make a change in V5. Now you have to do one of the following:
+
+- Move the code from ```Base``` to each of V1 to V4
+- Forever override that method from V5 on, but if you forget you'll get old functionality
 
 
 ## Additional Thought on Removing Duplication
 
-This does complicate things though, so decide if it's worth it. It may not be, espeically if previous versions don't live long, which is __very__ likely for an
-internal service. Be sure to test the behavior of this refactoring as well and keep tests for all active versions.
+You may realize this adds more complication than anything, so decide if it's worth it. If you're building an internal service, it is __very__ likely the previous
+versions won't live long anyway because you control the clients.
+
+If you do it, be sure to test the behavior of this refactoring as well and keep tests for all active versions.
+
+
 
 
 - Authentication
