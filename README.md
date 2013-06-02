@@ -587,6 +587,130 @@ end
 
 
 
+## Versioning
+
+Sometimes (hopefully not often) the external API of your service will have to change.
+
+Many of these changes don't have to force an immediate upgrade of all clients.
+
+
+## A Simple change
+
+We realized that our client apps just store one field for ```name``` for users and each of them is splitting the name for the benefit of Braintree. So we want to move
+this logic into the service.
+
+So our API will now accept just ```name``` for creating a customer instead of ```first_name``` and ```last_name```.
+
+
+## Namespace for each version
+
+Do this up front. Don't wait until you realize you need it.
+
+
+## Deprecate vs. Discontinue
+
+What if the new version is always mandatory?
+
+You still want versioning.
+
+
+## Why?
+
+Because it's better to serve a message that the service refused the request rather than trying to run your code and things breaking unexpectedly. In both cases it's
+broken, but only one of them will be easy to handle.
+
+(Without versioning you may not even realize things are going wrong!)
+
+
+## OK, so how?
+
+Common approach: Modules and URL namespacing
+
+
+## URL Namespacing
+
+_config/routes.rb_
+
+```ruby
+MagmaPaymentsService::Application.routes.draw do
+  namespace :v1 do
+    resources :customers, only: [:create, :update] do
+      resources :transactions, only: [:create, :index, :show]
+    end
+  do
+end
+```
+
+
+## New URLs
+
+```
+rake routes
+```
+
+```
+GET  /v1/customers/:customer_id/transactions     v1/transactions#index
+POST /v1/customers/:customer_id/transactions     v1/transactions#create
+GET  /v1/customers/:customer_id/transactions/:id v1/transactions#show
+POST /v1/customers                               v1/customers#create
+PUT  /v1/customers/:id                           v1/customers#update
+```
+
+
+## Move controllers into v1 directory
+
+```
+app/controllers/customers_controller.rb -> app/controllers/v1/customers_controller.rb
+app/controllers/transactions_controller.rb -> app/controllers/v1/transactions_controller.rb
+```
+
+
+## Add them to the V1 module
+
+_app/controllers/v1/customers_controller.rb_
+
+```ruby
+module V1
+  class CustomersController < ApplicationController
+    ...
+  end
+end
+```
+
+
+## Update the client to request V1
+
+_app/services/payments_service.rb_
+
+```ruby
+class PaymentsService
+  include HTTParty
+  base_uri MagmaClientApp::Application.config.payments_base_uri
+  VERSION = 'v1'
+
+  def self.create_customer(user)
+    params = { ... }
+    options = { body: params, headers: { "Authorization" => authorization_credentials }}
+    response = self.post("/#{VERSION}/customers.json", options)
+    response.parsed_response
+  end
+
+  private
+
+  def self.authorization_credentials
+    token = MagmaClientApp::Application.config.payments_api_secret
+    ActionController::HttpAuthentication::Token.encode_credentials(token)
+  end
+end
+```
+
+
+## Creating a new version
+
+- Add the new routes
+- Add a new module
+- Copy files from previous module to new one
+- Make your changes in the new module
 - Authentication
 - Versioning
 - Security

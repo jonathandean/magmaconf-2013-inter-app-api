@@ -2,6 +2,8 @@ class PaymentsService
   include HTTParty
   base_uri MagmaClientApp::Application.config.payments_base_uri
 
+  VERSION = 'v1'
+
   def self.create_customer(user)
     params = {
         id:         user.id,
@@ -10,7 +12,7 @@ class PaymentsService
         email:      user.email
     }
     options = { body: params, headers: { "Authorization" => authorization_credentials }}
-    response = self.post('/customers.json', options)
+    response = self.post("/#{VERSION}/customers.json", options)
     response.parsed_response
   end
 
