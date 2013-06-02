@@ -41,19 +41,11 @@ Application Programming Interface
 Simply, a clearly defined (and hopefully documented) way for different pieces of software to communicate with one another
 
 
-
-## What does an API look like?
-
-It's up to you!
-
-
-
 ## Different types of APIs
 
 - Code interfaces
 - Web APIs
 - Others
-
 
 
 ### APIs in code
@@ -87,11 +79,9 @@ The API for ```VeryImportantService``` is the ```do_my_bidding``` method
 _The private methods are NOT part of the API but part of the internal implementation_
 
 
-
 ## Web APIs
 
 Generally a __Server__ application that exposes some data and/or functionality to be consumed by another __Client__ application
-
 
 
 ## RESTful Web APIs
@@ -142,7 +132,6 @@ _The Word Wide Web itself is RESTful_
 Most RESTful APIs use _JSON_ or _XML_ for formatting the data, but you can use whatever you want. (The Web uses HTML)
 
 
-
 ## Examples of public RESTful APIs
 
 [Twitter REST API](https://dev.twitter.com/docs/api)
@@ -158,7 +147,6 @@ A few of the many reasons:
 - Give others an interface to your product (Twitter and Tumblr APIs)
 - Allow systems written in different languages to communicate
 - Provide an abstraction layer for your own systems
-
 
 
 ## Real-world Problem at Stitch Fix
@@ -182,7 +170,6 @@ Two Rails applications that need to share functionality:
 - Log the response from the Payment Gateway
 - Handle cases of payment failure
 - etc.
-
 
 
 ## Ways to share functionality between apps
@@ -354,7 +341,7 @@ If you ever get something like _WARNING: Can't verify CSRF token authenticity_ t
 
 - User
 - Address
-- (more we don't care about)
+- etc.
 
 
 ## Actions/Routes in our Client App
@@ -364,7 +351,7 @@ If you ever get something like _WARNING: Can't verify CSRF token authenticity_ t
 - Charge the User some money
 - Show the times we charged a User
 - Show details about a time we charged a User
-- (more we don't care about)
+- etc.
 
 
 ## How can our Client App call the API?
@@ -476,7 +463,14 @@ end
 ```
 
 
-## Concerns of an API Service
+## What about the Django app?
+
+The beauty is that none of this Ruby-specific. Clients just need to know HTTP and JSON, so they can be written in any language.
+
+If we just made a Ruby gem, the Django app would be out of luck.
+
+
+
 ## Securing the Service
 
 We can't have just anyone creating customers!
@@ -743,6 +737,13 @@ end
 Now clients can either send a ```first_name``` and ```last_name``` to ```/v1/customers``` or just a ```name``` to ```/v2/customers```. They have time to upgrade!
 
 
+## I don't like having the version in the URL
+
+Another common approach is to use an ```Accept``` header that specifies the version.
+
+Read about it on [RailsCasts](http://railscasts.com/episodes/350-rest-api-versioning?view=asciicast) later... there's other good info there as well :)
+
+
 ## What about the duplicated code?
 
 Some stuff may never change in your service. In this case, the non-version part of our routes and the ```TransactionsController``` stayed the same
@@ -810,23 +811,15 @@ versions won't live long anyway because you control the clients.
 If you do it, be sure to test the behavior of this refactoring as well and keep tests for all active versions.
 
 
+## Client handling of versions
+
+Decide and document from the beginning how depcrecation and removal of versions will work
+
+__Remember, the point is to not break clients! Don't make them implement version handling starting with V2__
 
 
-- Authentication
-- Versioning
-- Security
+## Helpful tools
 
-
-### Authentication
-
-Ensure that only the allowed clients are able to connect to the service. For our private API the only allowed clients are our own apps.
-
-
-### Versioning
-
-Changes to the public API should be versioned. Older versions can be _depcrecated_ or disabled, depending on the change.
-
-
-### Security
-
-Ensure that all data sent between clients and servers are encrypted to prevent eavesdropping.
+- Versionist
+- API Smitch
+- RocketPants
