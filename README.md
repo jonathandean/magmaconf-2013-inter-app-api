@@ -10,6 +10,27 @@ Jon Dean
 
 
 
+## Presentation and sample code
+
+[github.com/jonathandean/magmaconf-2013-inter-app-api](https://github.com/jonathandean/magmaconf-2013-inter-app-api)
+
+Presentation is at [jonathandean.github.io/magmaconf-2013-inter-app-api](https://jonathandean.github.io/magmaconf-2013-inter-app-api)
+
+Run locally by cloning and running ```grunt serve```. See [reveal.js](https://github.com/hakimel/reveal.js) for instructions.
+
+Apps are at [magma-payments-service/](https://github.com/jonathandean/magmaconf-2013-inter-app-api/tree/master/magma-payments-service) and
+[magma-client-app/](https://github.com/jonathandean/magmaconf-2013-inter-app-api/tree/master/magma-client-app)
+
+
+
+## How many know these things already?
+
+- Rails
+- REST
+- API
+
+
+
 ## What is an API?
 
 Application Programming Interface
