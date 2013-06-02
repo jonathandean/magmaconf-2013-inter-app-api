@@ -737,7 +737,7 @@ end
 Now clients can either send a ```first_name``` and ```last_name``` to ```/v1/customers``` or just a ```name``` to ```/v2/customers```. They have time to upgrade!
 
 
-## I don't like having the version in the URL
+## Don't like having the version in the URL?
 
 Another common approach is to use an ```Accept``` header that specifies the version.
 
