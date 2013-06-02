@@ -558,6 +558,12 @@ end
 ```
 
 
+## Secure your secret token!
+
+- Always use SSL in production
+- Use a different token in each environment
+- Move the token to ENV vars and out of source control
+
 
 
 - Authentication
