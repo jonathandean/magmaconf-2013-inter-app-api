@@ -711,6 +711,38 @@ end
 - Add a new module
 - Copy files from previous module to new one
 - Make your changes in the new module
+
+
+## Version 2 of the Payments Service API
+
+_app/controllers/v2/customers_controller.rb_
+
+```ruby
+module V2
+  class CustomersController < ApplicationController
+    def create
+      # Need to send a hash of :id, :name, :email
+      result = Braintree::Customer.create({
+        :id => params[:id],
+        :first_name => params[:name].split(' ').first,
+        :last_name => params[:name].split(' ').last,
+        :email => params[:email]
+      })
+      resp = { success: result.success?, message: (result.message rescue '') }
+      respond_to do |format|
+        format.json { render json: resp }
+      end
+    end
+  end
+end
+```
+
+
+## Two available versions
+
+Now clients can either send a ```first_name``` and ```last_name``` to ```/v1/customers``` or just a ```name``` to ```/v2/customers```. They have time to upgrade!
+
+
 - Authentication
 - Versioning
 - Security
