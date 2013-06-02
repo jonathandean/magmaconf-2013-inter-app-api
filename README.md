@@ -743,6 +743,71 @@ end
 Now clients can either send a ```first_name``` and ```last_name``` to ```/v1/customers``` or just a ```name``` to ```/v2/customers```. They have time to upgrade!
 
 
+## What about the duplicated code?
+
+Some stuff may never change in your service. In this case, the non-version part of our routes and the ```TransactionsController``` stayed the same
+
+
+## Less duplication in routes
+
+You can cleverly avoid duplication in _routes.rb_
+
+```ruby
+MagmaPaymentsService::Application.routes.draw do
+  (1..2).each do |version|
+    namespace :"v#{version}" do
+      resources :customers, only: [:create, :update] do
+        resources :transactions, only: [:create, :index, :show]
+      end
+    end
+  end
+end
+```
+
+
+## Using base classes to avoid duplication
+
+- Create a ```Base``` module when you create ```V1``` and put the code there
+- When you make a new version you can move just the code you change out of ```Base``` and into the new version
+
+
+## What it looks like
+
+_app/controllers/base/customers_controller.rb_
+
+```ruby
+module Base
+  class CustomersController < ApplicationController
+    # Stuff that rarely or never will change
+  end
+end
+```
+
+_app/controllers/v2/customers_controller.rb_
+
+```ruby
+module V2
+  class CustomersController < Base::CustomersController
+    # Stuff that overrides or is new functionality from Base
+  end
+end
+```
+
+
+## Why I'm not crazy about it
+
+- You make a change in V5
+- Now you have to do one of the following
+  - Move the code from ```Base``` to each of V1 to V4
+  - Forever override that method from V5 on, but if you forget you'll get old functionality
+
+
+## Additional Thought on Removing Duplication
+
+This does complicate things though, so decide if it's worth it. It may not be, espeically if previous versions don't live long, which is __very__ likely for an
+internal service. Be sure to test the behavior of this refactoring as well and keep tests for all active versions.
+
+
 - Authentication
 - Versioning
 - Security
