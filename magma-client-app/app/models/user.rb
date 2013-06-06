@@ -4,9 +4,9 @@ class User < ActiveRecord::Base
   after_create :create_payments_customer
 
   def create_payments_customer
-    answer = PaymentsService.create_customer(self)
-    puts "response success: #{answer['success']}"
-    puts "response message: #{answer['message']}"
+    answer = PaymentsClient.new.create_customer(self)
+    puts "response success: #{answer.success}"
+    puts "response message: #{answer.message}"
   end
 
 end

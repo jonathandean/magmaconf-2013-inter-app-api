@@ -930,8 +930,8 @@ _app/controllers/customers_controller.rb_
 class CustomersController < RocketPants::Base
   version '1'
   def create
-    ## DO SOME WORK ##
-    expose some_object
+    result = Braintree::Customer.create( ... )
+    expose({ success: result.success?, message: (result.message rescue '') })
   end
 end
 ```
@@ -945,22 +945,27 @@ _app/clients/payments_client.rb_
 class PaymentsClient < RocketPants::Client
   version '1'
   base_uri MagmaClientApp::Application.config.payments_base_uri
-  
+
   class Result < APISmith::Smash
     property :success
     property :message
   end
 
   def create_customer(user)
-    post 'customers', payload: CustomerTransformer.new(user), transformer: Result
+    post 'customers', payload: { name: user.name, email: user.email }, transformer: Result
   end
 end
 ```
 
+
+## Call the new RocketPants Client
+
 Now just call this is the ```after_create```
 
+_app/models/user.rb_
+
 ```ruby
-PaymentsClient.create_customer(self)
+PaymentsClient.new.create_customer(self)
 ```
 
 

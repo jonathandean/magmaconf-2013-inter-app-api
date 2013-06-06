@@ -4,6 +4,8 @@ gem 'rails', '3.2.13'
 
 gem 'braintree'
 
+gem 'rocket_pants'
+
 gem 'sqlite3'
 
 gem 'thin'
