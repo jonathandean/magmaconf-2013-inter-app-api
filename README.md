@@ -971,7 +971,36 @@ PaymentsClient.new.create_customer(self)
 
 ## Other goodies of RocketPants
 
-- Register and Handle errors
-  - __Error key:__ :unauthenticated
-  - __Exception:__ ```RocketPants::Unauthenticated```
-  - __HTTP status:__ 401 Unauthorized
+Register and Handle errors
+
+- __Error key:__ :unauthenticated
+- __Exception:__ ```RocketPants::Unauthenticated```
+- __HTTP status:__ 401 Unauthorized
+
+
+## Example
+
+In controller you can do
+
+```ruby
+error! :not_found
+```
+
+or raise the exception class
+
+```ruby
+raise RocketPants::NotFound
+```
+
+and it will do the _404 Not Found_ HTTP response for you!
+
+
+
+## Final Thoughts/Summary
+
+Create an API service application
+
+- to keep concerns separate and organize code
+- when you will have many applications (you probably will)
+- when you may use multiple languages (there's a decent change some day)
+- before you _have_ to (by then it's really hard!)
