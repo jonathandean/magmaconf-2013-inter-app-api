@@ -874,8 +874,9 @@ Decide and document from the beginning how depcrecation and removal of versions 
 __Remember, the point is to not break clients! Don't make them implement version handling starting with V2__
 
 
+
 ## Helpful tools
 
-- Versionist
-- API Smitch
-- RocketPants
+- [Versionist](https://github.com/bploetz/versionist) helps you do the versioning part of you API in a much better way
+- [API Smith](https://github.com/filtersquad/api_smith) is a collection of tools built on top of HTTParty that make things easier and cleaner
+- [RocketPants](https://github.com/filtersquad/rocket_pants) optioniated and much more complete set of tools for both the server and client side of an API. _Use this!_
