@@ -23,6 +23,12 @@ Apps are at [magma-payments-service/](https://github.com/jonathandean/magmaconf-
 
 
 
+## Note
+
+Sample code is to get you started, not your production code. Don't stop refactoring!
+
+
+
 ## How many know these things already?
 
 - Rails
@@ -82,6 +88,9 @@ _The private methods are NOT part of the API but part of the internal implementa
 ## Web APIs
 
 Generally a __Server__ application that exposes some data and/or functionality to be consumed by another __Client__ application
+
+The API (typically) is an HTTP endpoint and the internal implementation is up to you
+
 
 
 ## RESTful Web APIs
@@ -149,12 +158,16 @@ A few of the many reasons:
 - Provide an abstraction layer for your own systems
 
 
-## Real-world Problem at Stitch Fix
+## Real-world Problems at Stitch Fix
 
-Two Rails applications that need to share functionality:
+Multiple (3 so far) Rails applications that need to share functionality.
+
+For example:
 
 - An admin application that charges customers a styling fee when their items are shipped
 - A customer-facing website that charges clients for the products they keep when they checkout
+
+Plus a _ton_ of basic shared functionality
 
 
 ### ...AND
@@ -162,20 +175,26 @@ Two Rails applications that need to share functionality:
 - A legacy admin application written in Django
 
 
-### Shared functionality
-
-- Create a Customer in the Payment Gateway (Braintree)
-- Charge the customer's credit card
-- List previous transactions for a customer
-- Log the response from the Payment Gateway
-- Handle cases of payment failure
-- etc.
-
-
 ## Ways to share functionality between apps
 
 - Create a gem containing a shared code library
 - Set up a RESTful API service that all apps (including future ones) can use
+
+
+## How did we start?
+
+Legacy applications suck, so we made some gems
+
+
+## Seriously, a lot of gems
+
+- Sharing models
+- Deployment and versioning
+- Logging
+- Emails
+- Payments (charging customers $$)
+- Internal authentication/authorization
+- etc.
 
 
 ### Pros of sharing code via a gem
@@ -189,9 +208,26 @@ Two Rails applications that need to share functionality:
 
 ### Cons of sharing code via a gem
 
-- Need to update and deploy all applications when the gem changes
-- Internal improvements require a change in all applications using it
-- Cannot easily add other languages to your systems. _(Our legacy app can't take advantage of new code!)_
+Need to update and deploy all applications when the gem changes
+
+- Testing
+- Downtime (unless you are really great, like we are ;) )
+- Coordination
+    - Lots of code churn in multiple branches means this is _really_ frustrating and even sometimes confusing (especially at beginning of a project)
+
+
+### Cons of sharing code via a gem
+
+Internal improvements require a change in all applications using it
+
+```PaymentClass.charge_someone``` changes to ```OtherPaymentThing.charge```
+
+With a service application you are typically sharing data/objects instead with basic instructions (_create_ it, _update_ it, _delete_ it, etc.)
+
+
+### Cons of sharing code via a gem
+
+Cannot easily add other languages to your systems. _(Our legacy app can't take advantage of new code!)_
 
 
 ### Pros of sharing code via an API service
@@ -210,6 +246,26 @@ Two Rails applications that need to share functionality:
 - Handling timeouts and other service unavailability issues
 - Also need to implement an authentication layer
 
+
+## Which method do I choose?
+
+You tell me.
+
+
+
+## Building a service
+
+Simple application that is the starting point for handling payments in our systems
+
+
+## Shared functionality
+
+- Create a Customer in the Payment Gateway (Braintree)
+- Charge the customer's credit card
+- List previous transactions for a customer
+- Log the response from the Payment Gateway
+- Handle cases of payment failure
+- etc.
 
 
 ## Payments Service Models
