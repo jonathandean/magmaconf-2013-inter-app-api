@@ -1,6 +1,10 @@
-# Inter-Application Communication using Secure APIs
+## Inter-Application Communication
 
 Jon Dean
+
+Lead Software Engineer
+
+__[Stitch Fix](http://stitchfix.com)__
 
 [http://jonathandean.com](http://jonathandean.com)
 
@@ -23,9 +27,18 @@ Apps are at [magma-payments-service/](https://github.com/jonathandean/magmaconf-
 
 
 
-## Note
+## Purpose of the presentation
 
-Sample code is to get you started, not your production code. Don't stop refactoring!
+- Explain when and why you might want to make a service application
+- Very simple place to start writing code and show a few utilities
+- You can totally google the rest once you have something started
+
+
+## What this presentation isn't
+
+This is not your production code. Don't stop refactoring! Be sure to write tests.
+
+_(And I didn't test it all, so good luck!)_
 
 
 
@@ -51,7 +64,6 @@ Simply, a clearly defined (and hopefully documented) way for different pieces of
 
 - Code interfaces
 - Web APIs
-- Others
 
 
 ### APIs in code
@@ -162,11 +174,6 @@ A few of the many reasons:
 
 Multiple (3 so far) Rails applications that need to share functionality.
 
-For example:
-
-- An admin application that charges customers a styling fee when their items are shipped
-- A customer-facing website that charges clients for the products they keep when they checkout
-
 Plus a _ton_ of basic shared functionality
 
 
@@ -183,7 +190,9 @@ Plus a _ton_ of basic shared functionality
 
 ## How did we start?
 
-Legacy applications suck, so we made some gems
+Legacy applications suck, so we made some gems.
+
+(Because who cares about Django, right?)
 
 
 ## Seriously, a lot of gems
@@ -211,18 +220,36 @@ Legacy applications suck, so we made some gems
 Need to update and deploy all applications when the gem changes
 
 - Testing
-- Downtime (unless you are really great, like we are ;) )
+- Downtime... unless you are really great, like we are ;)
 - Coordination
-    - Lots of code churn in multiple branches means this is _really_ frustrating and even sometimes confusing (especially at beginning of a project)
+    - Lots of code churn/branches =  _really_ frustrating
 
 
 ### Cons of sharing code via a gem
 
 Internal improvements require a change in all applications using it
 
-```PaymentClass.charge_someone``` changes to ```OtherPaymentThing.charge```
+
+### Cons of sharing code via a gem
+
+```ruby
+PaymentClass.charge_someone
+```
+
+changes to
+
+```ruby
+OtherPaymentThing.charge
+```
+
+
+### Cons of sharing code via a gem
 
 With a service application you are typically sharing data/objects instead with basic instructions (_create_ it, _update_ it, _delete_ it, etc.)
+
+```
+POST /customers/:customer_id/transactions     transactions#create
+```
 
 
 ### Cons of sharing code via a gem
@@ -877,6 +904,69 @@ __Remember, the point is to not break clients! Don't make them implement version
 
 ## Helpful tools
 
-- [Versionist](https://github.com/bploetz/versionist) helps you do the versioning part of you API in a much better way
-- [API Smith](https://github.com/filtersquad/api_smith) is a collection of tools built on top of HTTParty that make things easier and cleaner
-- [RocketPants](https://github.com/filtersquad/rocket_pants) optioniated and much more complete set of tools for both the server and client side of an API. _Use this!_
+- [bploetz/versionist](https://github.com/bploetz/versionist) helps you do the versioning part of you API in a much better way
+- [filtersquad/api_smith](https://github.com/filtersquad/api_smith) is a collection of tools built on top of HTTParty that make things easier and cleaner
+- [filtersquad/rocket_pants](https://github.com/filtersquad/rocket_pants) optioniated and much more complete set of tools for both the server and client side of an API
+
+
+## RocketPants in the Service
+
+_config/routes.rb_
+
+```ruby
+MagmaPaymentsService::Application.routes.draw do
+  api :version => 1 do
+    resources :customers, only: [:create, :update] do
+      resources :transactions, only: [:create, :index, :show]
+    end
+  end
+end
+```
+
+
+_app/controllers/customers_controller.rb_
+
+```ruby
+class CustomersController < RocketPants::Base
+  version '1'
+  def create
+    ## DO SOME WORK ##
+    expose some_object
+  end
+end
+```
+
+
+## RocketPants in the Client
+
+_app/clients/payments_client.rb_
+
+```ruby
+class PaymentsClient < RocketPants::Client
+  version '1'
+  base_uri MagmaClientApp::Application.config.payments_base_uri
+  
+  class Result < APISmith::Smash
+    property :success
+    property :message
+  end
+
+  def create_customer(user)
+    post 'customers', payload: CustomerTransformer.new(user), transformer: Result
+  end
+end
+```
+
+Now just call this is the ```after_create```
+
+```ruby
+PaymentsClient.create_customer(self)
+```
+
+
+## Other goodies of RocketPants
+
+- Register and Handle errors
+  - __Error key:__ :unauthenticated
+  - __Exception:__ ```RocketPants::Unauthenticated```
+  - __HTTP status:__ 401 Unauthorized
