@@ -172,9 +172,7 @@ A few of the many reasons:
 
 ## Real-world Problems at Stitch Fix
 
-Multiple (3 so far) Rails applications that need to share functionality.
-
-Plus a _ton_ of basic shared functionality
+Multiple (3 so far) Rails applications that need to share functionality
 
 
 ### ...AND
@@ -679,12 +677,12 @@ this logic into the service.
 So our API will now accept just ```name``` for creating a customer instead of ```first_name``` and ```last_name```.
 
 
-## Namespace for each version
+## Tip on versioning
 
 Do this up front. Don't wait until you realize you need it.
 
 
-## Deprecate vs. Discontinue
+## What if I don't have deprecated versions?
 
 What if the new version is always mandatory?
 
